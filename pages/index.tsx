@@ -4,10 +4,11 @@ import Image from 'next/image'
 
 import styles from '../styles/Home.module.css'
 
-const fetcher = (...args: any[]) => fetch.apply(null, args).then(res => res.json())
+const fetcher = (input: RequestInfo | URL, init?: RequestInit | undefined) =>
+  fetch(input, init).then((res) => res.json())
 
 export default function Home() {
-  const { data, error } = useSWR(`/api`, fetcher)
+  const { data } = useSWR(`/api`, fetcher)
 
   return (
     <div className={styles.container}>
