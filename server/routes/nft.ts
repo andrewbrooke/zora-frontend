@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express'
 
-import { ZFError } from '../helpers/error'
+import { ZGError } from '../helpers/error'
 import Logger from '../helpers/logger'
 import { getNFTBalance } from '../controllers/zora'
 
@@ -21,7 +21,7 @@ router.get('/:address', (req: Request, res: Response) => {
       logger.debug(data)
       return res.json(data)
     })
-    .catch((err: ZFError) => {
+    .catch((err: ZGError) => {
       logger.error(err)
       return res.status(err.statusCode).json({ message: err.message })
     })

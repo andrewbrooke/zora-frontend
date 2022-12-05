@@ -14,13 +14,14 @@ const logger = Logger('server')
 app.prepare().then(async () => {
   const server = express()
 
-  const stream: StreamOptions = {
-    write: (message: any) => logger.http(message),
-  }
-
   const skip = (req: Request, res: Response) => {
     // Remove verbose GET logging from Next
     return !req.baseUrl.startsWith('/api')
+  }
+
+  // Middleware and logging
+  const stream: StreamOptions = {
+    write: (message: any) => logger.http(message),
   }
 
   server.use(bodyParser.json())
@@ -31,8 +32,10 @@ app.prepare().then(async () => {
     })
   )
 
+  // Configure backend API routes
   server.use('/api', api)
 
+  // Catchall for UI routing
   server.get('*', (req: Request, res: Response) => {
     return handle(req, res)
   })

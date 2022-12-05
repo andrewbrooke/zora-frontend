@@ -1,9 +1,9 @@
 // Custom error type to encapsulate all errors
-export class ZFError extends Error {
+export class ZGError extends Error {
   statusCode!: number
 }
 
-export class BadRequestError extends ZFError {
+export class BadRequestError extends ZGError {
   constructor(message: string) {
     super(message)
     this.message = message
@@ -11,7 +11,7 @@ export class BadRequestError extends ZFError {
   }
 }
 
-export class InternalServerError extends ZFError {
+export class InternalServerError extends ZGError {
   constructor() {
     const message = 'We are sorry, an internal server error occurred.'
     super(message)

@@ -27,7 +27,7 @@ export const getNFTBalance = async (address: string) => {
         ownerAddresses: [address],
       },
       pagination: {
-        limit: 1,
+        limit: 50,
         after: endCursor,
       },
     }
@@ -46,7 +46,14 @@ export const getNFTBalance = async (address: string) => {
         : null
     } while (endCursor)
 
-    return tokens
+    // Filter tokens such that we only send tokens that can be properly rendered in the UI
+    const filteredTokens = tokens
+      .map((t) => t.token)
+      .filter((t) => t.image && t.name && t.description)
+
+    return {
+      tokens: filteredTokens,
+    }
   } catch (err: any) {
     // Rethrow suitable error
     if (err.message.includes('Address must be a valid address or ENS domain')) {
