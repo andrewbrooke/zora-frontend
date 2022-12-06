@@ -2,7 +2,6 @@ import useSWR from 'swr'
 import Head from 'next/head'
 
 import {
-  useColorModeValue,
   Flex,
   Box,
   FormControl,
@@ -11,15 +10,15 @@ import {
   Link,
   Heading,
   Text,
-  Wrap,
-  WrapItem,
   Image,
   Container,
   FormErrorMessage,
   FormHelperText,
+  Spinner,
+  SimpleGrid,
 } from '@chakra-ui/react'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 import { TokensQuery } from '@zoralabs/zdk'
 
@@ -46,6 +45,57 @@ export default function Home() {
   const isFormInvalid =
     address.length > 0 && (!isValidAddress() || nftResponse?.message)
 
+  const isLoading = !!(isValidAddress() && !nftResponse)
+  const hasTokensData = !!(nftResponse && nftResponse.tokens)
+
+  function Gallery({
+    tokens,
+  }: {
+    tokens: TokensQuery['tokens']['nodes'][0]['token'][]
+  }) {
+    return (
+      <SimpleGrid
+        minChildWidth={['100%', null, '36ch', '36ch']}
+        w={['100%', null, '80%']}
+        spacing={'4'}
+      >
+        {tokens.map((token) => (
+          <Box
+            rounded={'lg'}
+            bg={'white'}
+            boxShadow={'lg'}
+            p={4}
+            key={`${token.collectionAddress}-${token.tokenId}`}
+          >
+            <Stack align={'center'} spacing={2}>
+              {token.image && token.image.mediaEncoding ? (
+                <Image
+                  rounded={'md'}
+                  src={token.image.mediaEncoding.original}
+                  fallbackSrc={'/image-default.png'}
+                  height={200}
+                  width={200}
+                  alt={token.name || undefined}
+                />
+              ) : null}
+              <Text fontSize={'lg'}>{token.name}</Text>
+              <Text fontSize={'md'} color='gray.600' noOfLines={2}>
+                {token.description}
+              </Text>
+              <Link
+                href={`https://etherscan.io/nft/${token.collectionAddress}/${token.tokenId}`}
+                isExternal
+                color={'blue.400'}
+              >
+                View on Etherscan
+              </Link>
+            </Stack>
+          </Box>
+        ))}
+      </SimpleGrid>
+    )
+  }
+
   return (
     <div>
       <Head>
@@ -59,13 +109,15 @@ export default function Home() {
           minH={'100vh'}
           align={'center'}
           justify={'center'}
-          bg={useColorModeValue('gray.50', 'gray.800')}
+          bgGradient='linear(to-br, cyan.800, pink.700)'
         >
           <Container maxW={'100%'} w={'100%'}>
             <Stack spacing={8} py={12} px={6} align={'center'}>
               <Stack align={'center'}>
-                <Heading fontSize={'4xl'}>NFT Gallery</Heading>
-                <Text fontSize={'lg'} color={'gray.600'}>
+                <Heading fontSize={'4xl'} color={'white'}>
+                  NFT Gallery
+                </Heading>
+                <Text fontSize={'lg'} color={'white'}>
                   powered by{' '}
                   <Link href='https://zora.co/' isExternal color={'blue.400'}>
                     Zora
@@ -75,10 +127,11 @@ export default function Home() {
               </Stack>
               <Box
                 rounded={'lg'}
-                bg={useColorModeValue('white', 'gray.700')}
+                bg={'white'}
                 boxShadow={'lg'}
                 p={8}
                 w={'lg'}
+                maxW={'100%'}
               >
                 <Stack spacing={4}>
                   <FormControl id='address' isInvalid={isFormInvalid}>
@@ -100,49 +153,8 @@ export default function Home() {
                   </FormControl>
                 </Stack>
               </Box>
-              {nftResponse && nftResponse.tokens ? (
-                <Wrap px='1rem' spacing={4} justify='center'>
-                  {nftResponse.tokens.map(
-                    (token: TokensQuery['tokens']['nodes'][0]['token']) => (
-                      <WrapItem
-                        key={`${token.collectionAddress}-${token.tokenId}`}
-                        rounded={'lg'}
-                        overflow='hidden'
-                        w={'md'}
-                      >
-                        <Box rounded={'lg'} bg={'white'} boxShadow={'sm'} p={4}>
-                          <Stack align={'center'} spacing={2}>
-                            {token.image && token.image.mediaEncoding ? (
-                              <Image
-                                rounded={'md'}
-                                src={token.image.mediaEncoding.original}
-                                height={200}
-                                width={200}
-                                alt={token.name || undefined}
-                              />
-                            ) : null}
-                            <Text fontSize={'lg'}>{token.name}</Text>
-                            <Text
-                              fontSize={'md'}
-                              color='gray.600'
-                              noOfLines={3}
-                            >
-                              {token.description}
-                            </Text>
-                            <Link
-                              href={`https://etherscan.io/nft/${token.collectionAddress}/${token.tokenId}`}
-                              isExternal
-                              color={'blue.400'}
-                            >
-                              View on Etherscan
-                            </Link>
-                          </Stack>
-                        </Box>
-                      </WrapItem>
-                    )
-                  )}
-                </Wrap>
-              ) : null}
+              {isLoading ? <Spinner /> : null}
+              {hasTokensData ? <Gallery tokens={nftResponse.tokens} /> : null}
             </Stack>
           </Container>
         </Flex>

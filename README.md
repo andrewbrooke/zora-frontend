@@ -40,7 +40,6 @@ yarn lint
 
 - Productionize
 - Tests
-- Break frontend UI into multiple components
+- Continue componentizing frontend
 - Hot reload dev config w/ Next.js custom server (detect frontend and backend changes?)
 - Resolve issues with Zora API & bad pagination in certain cases
-- Detect broken image URLs for certain NFTs returned by Zora
