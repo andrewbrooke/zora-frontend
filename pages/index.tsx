@@ -16,6 +16,7 @@ import {
   FormHelperText,
   Spinner,
   SimpleGrid,
+  AspectRatio,
 } from '@chakra-ui/react'
 
 import React, { useState } from 'react'
@@ -48,6 +49,55 @@ export default function Home() {
   const isLoading = !!(isValidAddress() && !nftResponse)
   const hasTokensData = !!(nftResponse && nftResponse.tokens)
 
+  function Media({
+    token,
+  }: {
+    token: TokensQuery['tokens']['nodes'][0]['token']
+  }) {
+    const isVideo = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
+      !!(
+        token.image &&
+        token.image.url &&
+        token.image.mimeType &&
+        token.image.mimeType.startsWith('video')
+      )
+    const isImage = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
+      !!(
+        token.image &&
+        token.image.url &&
+        token.image.mimeType &&
+        token.image.mimeType.startsWith('image')
+      )
+    const hasValidMedia = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
+      isVideo(token) || isImage(token)
+
+    return hasValidMedia(token) ? (
+      isVideo(token) ? (
+        <AspectRatio height={200} width={200} ratio={1} rounded={'md'}>
+          <iframe title={token.name || undefined} src={token.image!.url!} />
+        </AspectRatio>
+      ) : (
+        <Image
+          rounded={'md'}
+          src={token.image!.url!}
+          fallbackSrc={'/image-default.png'}
+          objectFit={'cover'}
+          height={200}
+          width={200}
+          alt={token.name || undefined}
+        />
+      )
+    ) : (
+      <Image
+        rounded={'md'}
+        src={'/image-default.png'}
+        height={200}
+        width={200}
+        alt={token.name || undefined}
+      />
+    )
+  }
+
   function Gallery({
     tokens,
   }: {
@@ -68,16 +118,7 @@ export default function Home() {
             key={`${token.collectionAddress}-${token.tokenId}`}
           >
             <Stack align={'center'} spacing={2}>
-              {token.image && token.image.mediaEncoding ? (
-                <Image
-                  rounded={'md'}
-                  src={token.image.mediaEncoding.original}
-                  fallbackSrc={'/image-default.png'}
-                  height={200}
-                  width={200}
-                  alt={token.name || undefined}
-                />
-              ) : null}
+              <Media token={token} />
               <Text fontSize={'lg'}>{token.name}</Text>
               <Text fontSize={'md'} color='gray.600' noOfLines={2}>
                 {token.description}

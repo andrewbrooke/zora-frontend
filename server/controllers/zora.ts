@@ -48,8 +48,13 @@ export const getNFTBalance = async (address: string) => {
 
     // Filter tokens such that we only send tokens that can be properly rendered in the UI
     const filteredTokens = tokens
-      .map((t) => t.token)
-      .filter((t) => t.image && t.name && t.description)
+      .filter((t) => t.token.image && t.token.name && t.token.description)
+      .map((t) => {
+        t.token.image!.url = t.token.image!.url
+          ? t.token.image!.url.replace('ipfs://', 'https://ipfs.io/ipfs/')
+          : undefined
+        return t.token
+      })
 
     return {
       tokens: filteredTokens,
