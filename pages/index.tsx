@@ -54,20 +54,16 @@ export default function Home() {
   }: {
     token: TokensQuery['tokens']['nodes'][0]['token']
   }) {
+    // Detect type of media based on properties/values present
+    const hasMimeType = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
+      !!(token.image && token.image.url && token.image.mimeType)
+
     const isVideo = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
-      !!(
-        token.image &&
-        token.image.url &&
-        token.image.mimeType &&
-        token.image.mimeType.startsWith('video')
-      )
+      !!(hasMimeType(token) && token.image!.mimeType!.startsWith('video'))
+
     const isImage = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
-      !!(
-        token.image &&
-        token.image.url &&
-        token.image.mimeType &&
-        token.image.mimeType.startsWith('image')
-      )
+      !!(hasMimeType(token) && token.image!.mimeType!.startsWith('image'))
+
     const hasValidMedia = (token: TokensQuery['tokens']['nodes'][0]['token']) =>
       isVideo(token) || isImage(token)
 
@@ -88,6 +84,7 @@ export default function Home() {
         />
       )
     ) : (
+      // Default to local image placeholder if no media is available
       <Image
         rounded={'md'}
         src={'/image-default.png'}
@@ -194,7 +191,7 @@ export default function Home() {
                   </FormControl>
                 </Stack>
               </Box>
-              {isLoading ? <Spinner /> : null}
+              {isLoading ? <Spinner color='white' /> : null}
               {hasTokensData ? <Gallery tokens={nftResponse.tokens} /> : null}
             </Stack>
           </Container>
